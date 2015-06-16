@@ -9,9 +9,14 @@ class DB_Plugin_Scheduler {
 
 	public $active_plugins;
 
+	public $plugin_scheduler_data;
+
 	public function __construct() {
-		// $active_plugins = get_option( 'active_plugins' );
+		$this->plugin_scheduler_data = get_option( 'plugin-scheduler-data' );
 		$this->active_plugins = get_option( 'active_plugins' );
+		echo '<pre>';
+		print_r($this->plugin_scheduler_data);
+		echo '</pre>';
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'init', array( $this, 'active_plugins' ), 99 );
 	}
@@ -36,18 +41,29 @@ class DB_Plugin_Scheduler {
 	 * @return [type] [description]
 	 */
 	public function admin_page_output() {
-		echo 'options<pre>';
-		print_r( get_option( 'plugin-scheduler-data' ) );
-		echo '</pre>';
+		$plugin_scheduler_data = $this->plugin_scheduler_data;
+		// echo 'options<pre>';
+		// print_r( $plugin_scheduler_data );
+		// echo '</pre>';
+		$start_time = $plugin_scheduler_data['time']['start'];
+		$end_time = $plugin_scheduler_data['time']['end'];
+		echo $end_time . ' end time';
+
 		?>
 		<form>
-				<input type="checkbox" name="plugin_data[day][monday]" class="" />
-				<input type="checkbox" name="plugin_data[day][tuesday]" class="" />
-				<input type="checkbox" name="plugin_data[day][wednesday]" class="" />
-				<input type="checkbox" name="plugin_data[day][thursday]" class="" />
-				<input type="checkbox" name="plugin_data[day][friday]" class="" />
-				<input type="checkbox" name="plugin_data[day][saturday]" class="" />
-				<input type="checkbox" name="plugin_data[day][sunday]" class="" />
+				<input type="checkbox" name="plugin_data[day][monday]" class="" <?php if ( array_key_exists( 'monday', $plugin_scheduler_data['day'] ) ) { echo 'checked'; } ?> /><?php esc_html_e( 'Monday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][tuesday]" class="" /><?php esc_html_e( 'Tuesday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][wednesday]" class="" /><?php esc_html_e( 'Wednesday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][thursday]" class="" /><?php esc_html_e( 'Thursday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][friday]" class="" /><?php esc_html_e( 'Friday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][saturday]" class="" /><?php esc_html_e( 'Saturday', 'plugin-scheduler'); ?><br />
+				<input type="checkbox" name="plugin_data[day][sunday]" class="" /><?php esc_html_e( 'Sunday', 'plugin-scheduler'); ?><br />
+				<br />
+				<?php esc_html_e( 'Start / Active time (Example 13:30)', 'plugin-scheduler' ); ?><br />
+				<input type="text" name="plugin_data[time][start]" <?php if ( ! empty( $start_time ) ) { echo 'value="' . esc_html( $start_time ) . '"'; } ?> /><br />
+				<?php esc_html_e( 'Start / Active time (Example 20:30)', 'plugin-scheduler' ); ?><br />
+				<input type="text" name="plugin_data[time][end]" <?php if ( ! empty( $end_time ) ) { echo 'value="' . esc_html( $end_time ) . '"'; } ?> /><br />
+				<br />
 			<?php foreach ( $this->active_plugins as $plugin ) : ?>
 				<input type="checkbox" name="plugin_data[plugin][<?php echo $plugin; ?>]" checked="checked"><?php echo $plugin; ?></input></br>
 			<?php endforeach; ?>
@@ -57,9 +73,6 @@ class DB_Plugin_Scheduler {
 		</form>
 		<?php
 		if ( isset( $_GET['saving'] ) && true == $_GET['saving'] ){
-			echo '<pre>';
-			print_r($_GET);
-			echo '</pre>';
 			// sanitize this
 			update_option( 'plugin-scheduler-data', $_GET['plugin_data'] );
 		}
