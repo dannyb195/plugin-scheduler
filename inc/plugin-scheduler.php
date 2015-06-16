@@ -14,11 +14,6 @@ class DB_Plugin_Scheduler {
 		$this->active_plugins = get_option( 'active_plugins' );
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'init', array( $this, 'active_plugins' ), 99 );
-		add_action( 'admin_init', array( $this, 'scripts' ) );
-	}
-
-	public function scripts() {
-		wp_enqueue_script( 'jquery-ui-datepicker' );
 	}
 
 	/**
@@ -41,21 +36,32 @@ class DB_Plugin_Scheduler {
 	 * @return [type] [description]
 	 */
 	public function admin_page_output() {
+		echo 'options<pre>';
+		print_r( get_option( 'plugin-scheduler-data' ) );
+		echo '</pre>';
 		?>
-		<script type="text/javascript">
-			jQuery( document ).ready( function() {
-				jQuery( 'input.date' ).datepicker();
-			});
-		</script>
 		<form>
-				<input class="date" value="" />
+				<input type="checkbox" name="plugin_data[day][monday]" class="" />
+				<input type="checkbox" name="plugin_data[day][tuesday]" class="" />
+				<input type="checkbox" name="plugin_data[day][wednesday]" class="" />
+				<input type="checkbox" name="plugin_data[day][thursday]" class="" />
+				<input type="checkbox" name="plugin_data[day][friday]" class="" />
+				<input type="checkbox" name="plugin_data[day][saturday]" class="" />
+				<input type="checkbox" name="plugin_data[day][sunday]" class="" />
 			<?php foreach ( $this->active_plugins as $plugin ) : ?>
-				<input type="hidden" name="page" value="plugin-scheduler" />
-				<input type="checkbox" checked="checked"><?php echo $plugin; ?></input></br>
+				<input type="checkbox" name="plugin_data[plugin][<?php echo $plugin; ?>]" checked="checked"><?php echo $plugin; ?></input></br>
 			<?php endforeach; ?>
+				<input type="hidden" name="page" value="plugin-scheduler" />
+				<input type="hidden" name="saving" value="true" />
 				<input type="submit" />
 		</form>
 		<?php
+		if ( isset( $_GET['saving'] ) && true == $_GET['saving'] ){
+			echo '<pre>';
+			print_r($_GET);
+			echo '</pre>';
+			update_option( 'plugin-scheduler-data', $_GET['plugin_data'] );
+		}
 	}
 
 	/**
