@@ -60,6 +60,7 @@ class DB_Plugin_Scheduler {
 			echo '<pre>';
 			print_r($_GET);
 			echo '</pre>';
+			// sanitize this
 			update_option( 'plugin-scheduler-data', $_GET['plugin_data'] );
 		}
 	}
